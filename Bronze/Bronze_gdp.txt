@@ -1,18 +1,28 @@
 let
-    Source = Json.Document(Web.Contents("https://api.worldbank.org/v2/country/USA/indicator/NY.GDP.MKTP.CD?format=json")),
-    
+    Source = Json.Document(
+        Web.Contents(
+            "https://api.worldbank.org/v2/country/USA/indicator/NY.GDP.MKTP.CD?format=json",
+            [
+                Query=[nocache=Text.From(DateTime.LocalNow())]
+            ]
+        )
+    ),
     #"Converted to table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
-    
     DataList = #"Converted to table"{1}[Column1],
-    
     DataTable = Table.FromList(DataList, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
-    
     ExpandedRecords = Table.ExpandRecordColumn(DataTable, "Column1", 
         {"indicator", "country", "countryiso3code", "date", "value"}, 
         {"indicator", "country", "countryiso3code", "date", "value"}),
-
     ExpandedIndicator = Table.ExpandRecordColumn(ExpandedRecords, "indicator", {"id","value"}, {"indicator_id","indicator_value"}),
     ExpandedCountry = Table.ExpandRecordColumn(ExpandedIndicator, "country", {"id","value"}, {"country_id","country_name"}),
-  #"Changed column type" = Table.TransformColumnTypes(ExpandedCountry, {{"indicator_id", type text}, {"indicator_value", type text}, {"country_id", type text}, {"country_name", type text}, {"countryiso3code", type text}, {"date", type text}, {"value", type number}})
+    #"Changed column type" = Table.TransformColumnTypes(
+        ExpandedCountry, 
+        {{"indicator_id", type text}, {"indicator_value", type text}, {"country_id", type text}, 
+          {"country_name", type text}, {"countryiso3code", type text}, 
+          {"date", type date}, {"value", type number}
+        }
+    ),
+
+    #"Sorted Rows" = Table.Sort(#"Changed column type", {{"date", Order.Descending}})
 in
-    #"Changed column type"
+    #"Sorted Rows"
