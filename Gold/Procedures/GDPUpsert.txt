@@ -1,0 +1,16 @@
+CREATE PROCEDURE upsertGDP
+AS
+BEGIN
+    set NOCOUNT ON;
+    MERGE INTO DimGDP t
+    using Silver.dbo.gdp s
+        on t.yearValue=s.yearValue
+    WHEN MATCHED THEN
+        UPDATE SET
+            t.countryID=s.country_id,
+            t.Gdp=s.GDP,
+            t.GdpB=s.GDP_B
+    WHEN NOT MATCHED THEN
+        INSERT (yearValue,countryID,Gdp,GdpB)
+        VALUES (s.yearValue,s.country_id,s.GDP,s.GDP_B);
+END;

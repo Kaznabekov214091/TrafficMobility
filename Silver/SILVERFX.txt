@@ -1,0 +1,23 @@
+let
+  Source = Lakehouse.Contents(null),
+  Navigation = Source{[workspaceId = "4906b11e-1e59-4869-9321-062a4696a2db"]}[Data],
+  #"Navigation 1" = Navigation{[lakehouseId = "62794233-3c68-4109-ab1e-7666b1963827"]}[Data],
+  #"Navigation 2" = #"Navigation 1"{[Id = "exchange_rate", ItemKind = "Table"]}[Data],
+  #"Reordered columns" = Table.ReorderColumns(#"Navigation 2", {"FREQ", "CURRENCY", "CURRENCY_DENOM", "EXR_TYPE", "EXR_SUFFIX", "TIME_PERIOD", "OBS_VALUE", "OBS_STATUS", "OBS_CONF", "OBS_PRE_BREAK", "OBS_COM", "BREAKS", "KEY", "COLLECTION", "COMPILING_ORG", "DISS_ORG", "DOM_SER_IDS", "PUBL_ECB", "PUBL_MU", "PUBL_PUBLIC", "UNIT_INDEX_BASE", "COMPILATION", "COVERAGE", "DECIMALS", "NAT_TITLE", "SOURCE_AGENCY", "SOURCE_PUB", "TITLE", "TITLE_COMPL", "UNIT", "UNIT_MULT"}),
+  #"Removed columns" = Table.RemoveColumns(#"Reordered columns", {"OBS_CONF", "OBS_PRE_BREAK", "OBS_COM", "BREAKS"}),
+  #"Removed other columns" = Table.SelectColumns(#"Removed columns", {"DECIMALS", "CURRENCY", "CURRENCY_DENOM", "TIME_PERIOD", "OBS_VALUE"}),
+  #"Reordered columns 1" = Table.ReorderColumns(#"Removed other columns", {"TIME_PERIOD", "DECIMALS", "CURRENCY", "CURRENCY_DENOM", "OBS_VALUE"}),
+  #"Removed columns 1" = Table.RemoveColumns(#"Reordered columns 1", {"DECIMALS"}),
+  #"Sorted rows" =
+    Table.Sort(
+      #"Removed columns 1",
+      {{"TIME_PERIOD", Order.Ascending}}
+    ),
+
+  #"Filled down OBS_VALUE" =
+    Table.FillDown(
+      #"Sorted rows",
+      {"OBS_VALUE"}
+    )
+in
+  #"Filled down OBS_VALUE"

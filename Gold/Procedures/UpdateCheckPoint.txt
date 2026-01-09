@@ -1,0 +1,30 @@
+CREATE OR ALTER PROCEDURE UpdateCheckpoints
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE Checkpoints
+    SET dateValue = (SELECT MAX(pickup_datetime) FROM Silver.silver.taxi_yellow),
+        yearValue = YEAR((SELECT MAX(pickup_datetime) FROM Silver.silver.taxi_yellow)),
+        monthValue = MONTH((SELECT MAX(pickup_datetime) FROM Silver.silver.taxi_yellow))
+    WHERE TableName = 'taxi_yellow';
+
+    UPDATE Checkpoints
+    SET dateValue = (SELECT MAX(pickup_datetime) FROM Silver.silver.taxi_green),
+        yearValue = YEAR((SELECT MAX(pickup_datetime) FROM Silver.silver.taxi_green)),
+        monthValue = MONTH((SELECT MAX(pickup_datetime) FROM Silver.silver.taxi_green))
+    WHERE TableName = 'taxi_green';
+
+    UPDATE Checkpoints
+    SET dateValue = (SELECT MAX(timestamp_local) FROM Silver.silver.air_quality),
+        yearValue = YEAR((SELECT MAX(timestamp_local) FROM Silver.silver.air_quality)),
+        monthValue = MONTH((SELECT MAX(timestamp_local) FROM Silver.silver.air_quality))
+    WHERE TableName = 'air_quality';
+
+    UPDATE Checkpoints
+    SET dateValue = (SELECT MAX(TIME_PERIOD) FROM Silver.dbo.exchange_rate),
+        yearValue = YEAR((SELECT MAX(TIME_PERIOD) FROM Silver.dbo.exchange_rate)),
+        monthValue = MONTH((SELECT MAX(TIME_PERIOD) FROM Silver.dbo.exchange_rate))
+    WHERE TableName = 'exchange_rate';
+END;
+GO

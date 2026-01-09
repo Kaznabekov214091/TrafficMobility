@@ -1,0 +1,15 @@
+use Gold
+GO
+CREATE table Checkpoints(
+TableName VARCHAR(50),
+dateValue DATETIME2(0) null,
+yearValue int null,
+monthValue int null
+
+)
+INSERT INTO Checkpoints (TableName, dateValue, yearValue, monthValue)
+VALUES
+('taxi_yellow', '2014-01-01', 2014, 1),
+('taxi_green', '2014-01-01', 2014, 1),
+('air_quality', '2014-01-01', 2014, 1),
+('exchange_rate', '1999-01-04', 1999, 1);

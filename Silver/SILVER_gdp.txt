@@ -1,0 +1,12 @@
+let
+  Source = Lakehouse.Contents(null),
+  Navigation = Source{[workspaceId = "4906b11e-1e59-4869-9321-062a4696a2db"]}[Data],
+  #"Navigation 1" = Navigation{[lakehouseId = "62794233-3c68-4109-ab1e-7666b1963827"]}[Data],
+  #"Navigation 2" = #"Navigation 1"{[Id = "gdp", ItemKind = "Table"]}[Data],
+  #"Removed columns" = Table.RemoveColumns(#"Navigation 2", {"indicator_id", "indicator_value", "countryiso3code"}),
+  #"Reordered columns" = Table.ReorderColumns(#"Removed columns", {"date", "country_id", "country_name", "value"}),
+  #"Added custom" = Table.TransformColumnTypes(Table.AddColumn(#"Reordered columns", "GDP_B", each Number.Round([value]/ 1000000000,2)), {{"GDP_B", type number}}),
+  #"Renamed columns" = Table.RenameColumns(#"Added custom", {{"date", "yearValue"}, {"value", "GDP"}}),
+  #"Changed column type" = Table.TransformColumnTypes(#"Renamed columns", {{"yearValue", Int64.Type}})
+in
+  #"Changed column type"

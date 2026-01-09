@@ -1,0 +1,38 @@
+USE Gold;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.tables
+    WHERE name = 'DimDate'
+      AND schema_id = SCHEMA_ID('dbo')
+)
+BEGIN
+    CREATE TABLE dbo.DimDate (
+        DateKey INT NOT NULL,          
+        DateValue DATE NOT NULL,
+
+        YearValue INT NOT NULL,
+        MonthValue INT NOT NULL,
+        DayValue INT NOT NULL,
+
+        QuarterValue INT NOT NULL,
+        WeekValue INT NOT NULL,         
+        DayOfWeek INT NOT NULL,         
+        IsWeekend BIT NOT NULL
+    );
+END;
+
+
+
+
+
+
+
+
+
+
+
+
+
+

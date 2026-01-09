@@ -1,0 +1,27 @@
+USE Gold;
+GO
+
+IF NOT EXISTS (SELECT 1 
+               FROM sys.tables 
+               WHERE name = 'DimZone' 
+                 AND schema_id = SCHEMA_ID('dbo'))
+BEGIN
+    CREATE TABLE DimZone (
+        zoneKey BIGINT IDENTITY,
+        LocationID INT,
+        Borough VARCHAR(50),
+        ZoneName VARCHAR(50),
+        BoroughID INT,
+        geometryWKT VARCHAR(MAX)
+    );
+END
+GO
+
+INSERT INTO DimZone (LocationID, Borough, ZoneName, BoroughID, geometryWKT)
+SELECT 
+    LocationID, 
+    borough, 
+    ZoneName, 
+    BoroughID,
+    geometry
+FROM Silver.silver.taxi_zones;

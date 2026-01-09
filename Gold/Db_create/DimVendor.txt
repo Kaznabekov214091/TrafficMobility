@@ -1,0 +1,20 @@
+use Gold
+GO
+if not exists(SELECT 1 
+            from sys.tables
+            WHERE name='DimVendor'
+                and schema_id=SCHEMA_ID('dbo'))
+begin
+    create table DimVendor(
+    VendorKey BIGINT IDENTITY,
+    VendorID int,
+    VendorName VARCHAR(100)
+    );
+END
+GO
+INSERT INTO DimVendor(VendorID,VendorName)
+VALUES
+(1,'Creative Mobile Technologies, LLC'),
+(2,'Curb Mobility, LLC'),
+(6,'Myle Technologies Inc'),
+(7,'Helix')

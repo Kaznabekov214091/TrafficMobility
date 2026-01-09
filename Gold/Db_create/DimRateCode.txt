@@ -1,0 +1,26 @@
+use Gold
+GO
+if not EXISTS(SELECT 1 
+            from sys.tables 
+            where name='DimRatecode'
+            and schema_id=SCHEMA_ID('dbo'))
+BEGIN
+    create table DimRatecode(
+    RatecodeKey bigint IDENTITY,
+    RatecodeID int,
+    RatecodeName VARCHAR(50)
+    );
+END
+GO
+INSERT INTO DimRatecode(RatecodeID,RatecodeName)
+VALUES
+(1,'Standard rate'),
+(2,'JFK'),
+(3,'Newark'),
+(4,'Nassau or Westchester'),
+(5,'Negotiated fare'),
+(6,'Group ride'),
+(99,NULL);
+
+
+

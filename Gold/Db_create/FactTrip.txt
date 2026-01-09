@@ -1,0 +1,22 @@
+IF NOT EXISTS (
+    SELECT 1 
+    FROM sys.tables 
+    WHERE name = 'FactTrip' AND schema_id = SCHEMA_ID('dbo')
+)
+BEGIN
+    CREATE TABLE FactTrip
+    (
+        DateKey        INT       NOT NULL,
+        PULocationID   INT       NOT NULL,
+        DOLocationID   INT       NOT NULL,
+        TripCount      BIGINT    NOT NULL,
+        TotalFare      FLOAT     NULL,
+        TotalAmount    FLOAT     NULL,
+        TollsAmount    FLOAT     NULL,
+        PassengerCount BIGINT    NULL,
+        TripDistance   FLOAT     NULL,
+        SlowSpeed      FLOAT     NULL,  
+        ModerateSpeed  FLOAT     NULL,  
+        AvgSpeed       FLOAT     NULL
+    );
+END;

@@ -1,0 +1,11 @@
+USE Gold
+if not EXISTS(SELECT 1 FROM sys.tables 
+            where name='DimFX' and schema_id=SCHEMA_ID('dbo'))
+BEGIN
+    CREATE TABLE DimFX(
+    DateKey int,
+    Currency VARCHAR(4),
+    CurrencyDenom varchar(4),
+    rate float
+    );
+END

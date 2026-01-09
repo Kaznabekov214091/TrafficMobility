@@ -1,0 +1,45 @@
+CREATE OR ALTER PROCEDURE PopulateDimDate
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @StartDate DATE = (
+        SELECT ISNULL(
+            DATEADD(DAY, 1, MAX(DateValue)),  
+            '1999-01-04'                      
+        )
+        FROM DimDate
+    );
+
+    DECLARE @EndDate DATE = CAST(GETDATE() AS DATE);
+    DECLARE @CurrentDate DATE = @StartDate;
+
+    WHILE @CurrentDate <= @EndDate
+    BEGIN
+        INSERT INTO DimDate(
+            DateKey,
+            DateValue,
+            YearValue,
+            MonthValue,
+            DayValue,
+            QuarterValue,
+            WeekValue,
+            DayOfWeek,
+            IsWeekend
+        )
+        VALUES(
+            CAST(FORMAT(@CurrentDate,'yyyyMMdd') AS INT),
+            @CurrentDate,
+            YEAR(@CurrentDate),
+            MONTH(@CurrentDate),
+            DAY(@CurrentDate),
+            DATEPART(QUARTER,@CurrentDate),
+            DATEPART(WEEK,@CurrentDate),
+            DATEPART(WEEKDAY,@CurrentDate),
+            CASE WHEN DATEPART(WEEKDAY,@CurrentDate) IN (1,7) THEN 1 ELSE 0 END
+        );
+
+        SET @CurrentDate = DATEADD(DAY, 1, @CurrentDate);
+    END
+END;
+GO

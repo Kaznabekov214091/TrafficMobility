@@ -1,0 +1,14 @@
+use Gold
+GO
+if not exists(select 1 from 
+            sys.tables where name='DimGDP' AND
+            schema_id=SCHEMA_ID('dbo'))
+BEGIN
+    CREATE TABLE DimGDP(
+    GdpKey BIGINT IDENTITY,
+    yearValue int,
+    countryID VARCHAR(4),
+    Gdp FLOAT,
+    GdpB FLOAT
+    );
+END

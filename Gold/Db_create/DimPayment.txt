@@ -1,0 +1,23 @@
+use Gold
+GO
+if not exists(select 1 FROM
+            sys.tables where name='DimPayment'
+            and schema_id=SCHEMA_ID('dbo'))
+Begin
+    create table DimPayment(
+    PaymentKey BIGINT IDENTITY,
+    PaymentID int,
+    PaymentType VARCHAR(50));
+END
+GO
+insert into DimPayment(PaymentID,PaymentType)
+VALUES
+(0,'Flex Fare trip'),
+(1,'Credit card'),
+(2,'Cash'),
+(3,'No charge'),
+(4,'Dispute'),
+(5,'Unknown'),
+(6,'Voided trip')
+
+

@@ -1,0 +1,60 @@
+CREATE OR ALTER PROCEDURE InsertFactTrip
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @LastYellowDate DATE = (SELECT dateValue FROM Checkpoints WHERE TableName = 'taxi_yellow');
+    DECLARE @LastGreenDate  DATE = (SELECT dateValue FROM Checkpoints WHERE TableName = 'taxi_green');
+
+    INSERT INTO FactTrip
+    (
+        DateKey,
+        PULocationID,
+        DOLocationID,
+        TripCount,
+        TotalFare,
+        TotalAmount,
+        TollsAmount,
+        PassengerCount,
+        TripDistance,
+        SlowSpeed,
+        ModerateSpeed,
+        AvgSpeed
+    )
+    SELECT
+        CAST(FORMAT(t.pickup_datetime,'yyyyMMdd') AS BIGINT) AS DateKey,
+        t.PULocationID,
+        t.DOLocationID,
+        COUNT_BIG(*) AS TripCount,
+        SUM(CAST(t.fare_amount AS FLOAT)) AS TotalFare,
+        SUM(CAST(t.total_amount AS FLOAT)) AS TotalAmount,
+        SUM(CAST(t.tolls_amount AS FLOAT)) AS TollsAmount,
+        SUM(CAST(t.passenger_count AS BIGINT)) AS PassengerCount,
+        SUM(CAST(t.trip_distance AS FLOAT)) AS TripDistance,
+        100.0 * SUM(CASE WHEN t.avg_speed_mph < 10 THEN 1 ELSE 0 END) / NULLIF(CAST(COUNT(*) AS FLOAT),0) AS SlowSpeed,
+        100.0 * SUM(CASE WHEN t.avg_speed_mph >= 10 AND t.avg_speed_mph < 20 THEN 1 ELSE 0 END) / NULLIF(CAST(COUNT(*) AS FLOAT),0) AS ModerateSpeed,
+        AVG(CAST(t.avg_speed_mph AS FLOAT)) AS AvgSpeed
+    FROM Silver.silver.taxi_yellow t
+    WHERE t.pickup_datetime > @LastYellowDate
+    GROUP BY CAST(FORMAT(t.pickup_datetime,'yyyyMMdd') AS BIGINT), t.PULocationID, t.DOLocationID
+
+    UNION ALL
+
+    SELECT
+        CAST(FORMAT(t.pickup_datetime,'yyyyMMdd') AS BIGINT) AS DateKey,
+        t.PULocationID,
+        t.DOLocationID,
+        COUNT_BIG(*) AS TripCount,
+        SUM(CAST(t.fare_amount AS FLOAT)) AS TotalFare,
+        SUM(CAST(t.total_amount AS FLOAT)) AS TotalAmount,
+        SUM(CAST(t.tolls_amount AS FLOAT)) AS TollsAmount,
+        SUM(CAST(t.passenger_count AS BIGINT)) AS PassengerCount,
+        SUM(CAST(t.trip_distance AS FLOAT)) AS TripDistance,
+        100.0 * SUM(CASE WHEN t.avg_speed_mph < 10 THEN 1 ELSE 0 END) / NULLIF(CAST(COUNT(*) AS FLOAT),0) AS SlowSpeed,
+        100.0 * SUM(CASE WHEN t.avg_speed_mph >= 10 AND t.avg_speed_mph < 20 THEN 1 ELSE 0 END) / NULLIF(CAST(COUNT(*) AS FLOAT),0) AS ModerateSpeed,
+        AVG(CAST(t.avg_speed_mph AS FLOAT)) AS AvgSpeed
+    FROM Silver.silver.taxi_green t
+    WHERE t.pickup_datetime > @LastGreenDate
+    GROUP BY CAST(FORMAT(t.pickup_datetime,'yyyyMMdd') AS BIGINT), t.PULocationID, t.DOLocationID;
+END;
+GO

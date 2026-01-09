@@ -1,0 +1,25 @@
+CREATE OR ALTER PROCEDURE insertFX
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @LastDate DATE = (
+        SELECT dateValue
+        FROM Checkpoints
+        WHERE TableName = 'exchange_rate'
+    );
+
+    INSERT INTO DimFX(DateKey, Currency, CurrencyDenom, rate)
+    SELECT
+        CAST(FORMAT(f.TIME_PERIOD,'yyyyMMdd') AS INT) AS DateKey,
+        f.CURRENCY,
+        f.CURRENCY_DENOM,
+        f.OBS_VALUE
+    FROM Silver.dbo.exchange_rate f
+    LEFT JOIN DimFX fx
+        ON fx.DateKey = CAST(FORMAT(f.TIME_PERIOD,'yyyyMMdd') AS INT)
+        AND fx.Currency = f.CURRENCY
+        AND fx.CurrencyDenom = f.CURRENCY_DENOM
+    WHERE f.TIME_PERIOD > @LastDate
+      AND fx.DateKey IS NULL;
+END

@@ -1,0 +1,12 @@
+use Gold
+if not EXISTS (SELECT 1 from sys.tables 
+                where name='FactAir' and schema_id=SCHEMA_ID('dbo'))
+
+BEGIN
+CREATE TABLE FactAir(
+    DateKey int,
+    BoroughKey int,
+    AvgPM25 DECIMAL(18,2)
+
+);
+END
